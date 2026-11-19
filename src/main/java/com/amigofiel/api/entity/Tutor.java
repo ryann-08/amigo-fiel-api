@@ -4,6 +4,8 @@ package com.amigofiel.api.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDateTime;
 
@@ -17,16 +19,25 @@ public class Tutor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    //vertical slice, garantir que o usuario nao envie dados invalidos ou vazios
-    @NotBlank(message = "O nome é obrigatorio")
-    @Size(min = 3, max = 120, message = "O nome deve ter entre 3 a 120 caracteres")
-
     //criacao das tabelas de acordo com oq foi pedido
     //private como encapsulamento
+    //vertical slice, garantir que o usuario nao envie dados invalidos ou vazios
+    //@NotBlank esta criando a regra de negocio onde obriga, a fazer determinadas coisas para nao dar erro
+    @NotBlank(message = "O nome é obrigatorio")
+    @Size(min = 3, max = 120, message = "O nome deve ter entre 3 a 120 caracteres")
     private String nome;
+
+    @NotBlank(message = "O e-mail é obrigatório")
+    @Email(message = "Formato de e-mail inválido")
+    @Column(unique = true) // Garante que é único no banco
     private String email;
+
+    @NotBlank(message = "A cidade é obrigatória")
+    @Size(min = 2, max = 80, message = "A cidade deve ter entre 2 e 80 caracteres")
     private String cidade;
-    //telefone com DDD (criando em string para evitar o estouro numerico e preservar o 0
+
+    @NotBlank(message = "O telefone é obrigatório")
+    @Pattern(regexp = "^\\d{10,11}$", message = "O telefone deve conter apenas dígitos, com 10 ou 11 caracteres")
     private String telefone;
     //momento em que um registro foi criado
     private LocalDateTime dataCadastro;

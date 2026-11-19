@@ -3,11 +3,13 @@ package com.amigofiel.api.controller;
 //importacaoes para o arquivo rodar
 import com.amigofiel.api.entity.Tutor;
 import com.amigofiel.api.repository.TutorRepository;
-import jakarta.persistence.Id;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
+import java.util.Optional;
+import org.springframework.http.ResponseEntity;
 
 //@RestController informa ao spring que esta classe é um controlador web
 //ele vai receber requisicoes HTTP, e ira retorna em json
@@ -40,33 +42,44 @@ public class TutorController {
 
     }
 
-    //metodo get de buscar/ler
-    @GetMapping
-    public List<Tutor> ListarTodos(){
-        //chama o repositorio para buscar todas as linhas da tabela no banco e devolve com uma lista JSON
-        return tutorRepository.findAll();
+    // Método GET para buscar um tutor específico pelo ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Tutor> detalhar(@PathVariable Long id) {
+        // Busca no banco pelo ID informado na URL
+        Optional<Tutor> tutor = tutorRepository.findById(id);
+
+        // Se encontrar, retorna 200 OK com o tutor; senão, retorna 404 Not Found
+        if (tutor.isPresent()) {
+            return ResponseEntity.ok(tutor.get());
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     // @PutMapping("/{id}"): Responde a requisições PUT (usadas para atualizar dados existentes)
     @PutMapping("/{id}")
-    public Tutor atualizar(@PathVariable long id, @RequestBody @Valid Tutor tutorAtualizado){
+    public ResponseEntity<Tutor> atualizar(@PathVariable Long id, @RequestBody Tutor dadosAtualizados) {
+        // Se o ID não existe, retorna 404 Not Found
+        if (!tutorRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
 
-        //garante que todo objeto vai manter o mesmo ID que veio da URL
-        tutorAtualizado.setId(id);
-
-        // O save() do JpaRepository atualiza no banco porque o objeto já tem um ID!
-        //o.save, vai no banco e ve se tem um id se nao tiver ele sabe que é um cadastro novo(insert)
-        //mas se ja tem id ele sabe que é uma atualizacao(update)
-        return tutorRepository.save(tutorAtualizado);
+        // Se existe, atualiza e retorna 200 OK
+        dadosAtualizados.setId(id);
+        Tutor tutorSalvo = tutorRepository.save(dadosAtualizados);
+        return ResponseEntity.ok(tutorSalvo);
     }
 
-    // @DeleteMapping("/{id}"): Responde a requisições do tipo DELETE para apagar um registro pelo ID
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Long id) {
-        // @PathVariable: Pega o ID que veio na URL (ex: /tutores/1) e joga na variável Long id
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        // Se o ID não existe, retorna 404 Not Found
+        if (!tutorRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
 
-        // Manda o repositório apagar do banco o registro correspondente a esse ID
+        // Se existe, deleta e retorna 204 No Content (sucesso sem corpo)
         tutorRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
