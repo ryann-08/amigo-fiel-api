@@ -17,5 +17,10 @@ public interface TutorRepository extends JpaRepository<Tutor, Long>{
     //buscar por ID (findById)
     //listar todos (findAll)
     //Deletar (delete)
+
+
+    //aqui verifica o sistema se já existe um tutor
+    // cadastrado com aquele mesmo e-mail antes de salvar.
+    boolean existsByEmail(String email);
 }
 
