@@ -8,10 +8,11 @@ import com.amigofiel.api.exception.ResourceNotFoundException;
 import com.amigofiel.api.repository.TutorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service // Marca a classe como um componente de serviço (regras de negócio)
 public class TutorService {
@@ -41,11 +42,10 @@ public class TutorService {
         return new TutorResponse(salvo);
     }
 
-    // LISTAR TODOS: Busca do banco e converte cada Tutor em TutorResponse
-    public List<TutorResponse> listarTodos() {
-        return tutorRepository.findAll().stream()
-                .map(TutorResponse::new) // Transforma cada Tutor da lista em TutorResponse
-                .collect(Collectors.toList());
+    // LISTAR COM FILTROS E PAGINAÇÃO: Busca paginada usando o repositório customizado[cite: 1]
+    public Page<TutorResponse> listar(String nome, String cidade, Pageable pageable) {
+        return tutorRepository.filtrarTutores(nome, cidade, pageable)
+                .map(TutorResponse::new); // Converte cada Tutor da página em TutorResponse
     }
 
     // BUSCAR POR ID (Retornando Response para o Controller)
@@ -54,7 +54,7 @@ public class TutorService {
         return new TutorResponse(tutor);
     }
 
-    // MÉTODO AUXILIAR INTERNO: Busca a entidade pura (usado para atualizar e deletar)
+    // METODO AUXILIAR INTERNO: Busca a entidade pura (usado para atualizar e deletar)
     public Tutor buscarPorId(Long id) {
         return tutorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tutor não encontrado com o ID: " + id));

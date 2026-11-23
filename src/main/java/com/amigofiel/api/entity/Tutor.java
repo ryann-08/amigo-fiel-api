@@ -1,6 +1,5 @@
 package com.amigofiel.api.entity;
 
-//fazendo importacoes para o codigo rodar, sem erro
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,57 +8,59 @@ import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDateTime;
 
-//aqui estamos criando, onde ele vai morar la no banco de dados
 @Entity
 @Table(name = "tutores")
-
 public class Tutor {
-    //aqui onde cria a tabela do tutor, que vai guardar la no banco de dados
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    //criacao das tabelas de acordo com oq foi pedido
-    //private como encapsulamento
-    //vertical slice, garantir que o usuario nao envie dados invalidos ou vazios
-    //@NotBlank esta criando a regra de negocio onde obriga, a fazer determinadas coisas para nao dar erro
-    @NotBlank(message = "O nome é obrigatorio")
+    @NotBlank(message = "O nome é obrigatório")
     @Size(min = 3, max = 120, message = "O nome deve ter entre 3 a 120 caracteres")
+    @Column(nullable = false, length = 120)
     private String nome;
 
     @NotBlank(message = "O e-mail é obrigatório")
     @Email(message = "Formato de e-mail inválido")
-    @Column(unique = true) // Garante que é único no banco
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotBlank(message = "A cidade é obrigatória")
     @Size(min = 2, max = 80, message = "A cidade deve ter entre 2 e 80 caracteres")
+    @Column(nullable = false, length = 80)
     private String cidade;
 
     @NotBlank(message = "O telefone é obrigatório")
     @Pattern(regexp = "^\\d{10,11}$", message = "O telefone deve conter apenas dígitos, com 10 ou 11 caracteres")
+    @Column(nullable = false, length = 11)
     private String telefone;
-    //momento em que um registro foi criado
+
+    @Column(name = "data_cadastro", nullable = false)
     private LocalDateTime dataCadastro;
-    //status para saber se o tutor esta ativo no sistema
+
+    @Column(nullable = false)
     private Boolean ativo;
 
+    // Construtor vazio obrigatório para o JPA
+    public Tutor() {
+    }
 
-    //metodo que roda automaticamente antes de salvar o tutor no banco de dados
-    //sao campos que o usuario nao tera que escrever nada
+    //Metodo que roda automaticamente antes de salvar no banco pela primeira vez
     @PrePersist
-    public void prePersist(){
-        this.dataCadastro = LocalDateTime.now(); // pega a data e hora exata no momento do cadastro
+    public void prePersist() {
+        this.dataCadastro = LocalDateTime.now();
         this.ativo = true;
     }
-    //criei os metodos getters e setters, para conseguir acessar o atributo que esta no private
-    //getters para buscar, setters para inserir
 
-    public long getId() {
+    // ==========================================
+    // GETTERS E SETTERS
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -110,7 +111,4 @@ public class Tutor {
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
     }
-
-
-
 }
