@@ -1,4 +1,21 @@
 package com.amigofiel.api.repository;
 
-public class VeterinarioRepository {
+import com.amigofiel.api.entity.Veterinario;
+
+//essa importacao que faz os metodos de buscar salvar etc
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+// 1. Diz ao Spring Boot que esta interface é um componente de repositório (acesso a dados)
+@Repository
+
+// 2. Herda de JpaRepository, passando a Entidade (Veterinario) e o tipo da chave primária (Long)
+//aqui é o famoso jpa, faz todos aqueles metodos salvar buscar deletar etc, usando ID do tipo long
+public interface VeterinarioRepository extends JpaRepository<Veterinario, Long> {
+
+    // aqui Metodo customizado de busca por CRMV
+    // O Spring Data JPA lê o nome "findByCrmv" e gera a consulta SQL automaticamente nos bastidores
+    Optional<Veterinario> findByCrmv(String crmv);
 }
