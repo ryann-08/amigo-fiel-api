@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-// 1. Diz ao Spring Boot que esta interface é um componente de repositório (acesso a dados)
+//  Diz ao Spring Boot que esta interface é um componente de repositório (acesso a dados)
 @Repository
 
-// 2. Herda de JpaRepository, passando a Entidade (Veterinario) e o tipo da chave primária (Long)
+//  Herda de JpaRepository, passando a Entidade (Veterinario) e o tipo da chave primária (Long)
 //aqui é o famoso jpa, faz todos aqueles metodos salvar buscar deletar etc, usando ID do tipo long
 public interface VeterinarioRepository extends JpaRepository<Veterinario, Long> {
 
@@ -20,4 +20,6 @@ public interface VeterinarioRepository extends JpaRepository<Veterinario, Long> 
     //vai no banco para ver se ja tem um crvm salvo no banco
     // O Spring Data JPA lê o nome "findByCrmv" e gera a consulta SQL automaticamente nos bastidores
     Optional<Veterinario> findByCrmv(String crmv);
+
+    boolean existsByCrmv(String crmv);
 }
