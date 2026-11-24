@@ -1,7 +1,7 @@
 package com.amigofiel.api.entity;
 
 import jakarta.persistence.*;
-
+import com.amigofiel.api.enums.Especialidade;
 
 // Diz ao Java/Spring que esta classe é uma entidade do banco de dados
 //em portugues claro: avisa ao banco que isso é uma tabela
@@ -25,8 +25,10 @@ public class Veterinario {
 
 
     // Especialidade (ex: Clínica Geral, Cirurgia, etc.)
+    // ALTERADO AQUI: Agora é do tipo do Enum e usa @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String especialidade;
+    private Especialidade especialidade;
 
     // Status para saber se está ativo (padrão é true)
     @Column(nullable = false)
@@ -40,7 +42,7 @@ public class Veterinario {
     }
 
     // Construtor com os dados principais para facilitar a criação de objetos se necessário
-    public Veterinario(String nome, String crmv, String especialidade) {
+    public Veterinario(String nome, String crmv, Especialidade especialidade) {
         this.nome = nome;
         this.crmv = crmv;
         this.especialidade = especialidade;
@@ -73,12 +75,11 @@ public class Veterinario {
         this.crmv = crmv;
     }
 
-
-    public String getEspecialidade() {
+    public Especialidade getEspecialidade() {
         return especialidade;
     }
 
-    public void setEspecialidade(String especialidade) {
+    public void setEspecialidade(Especialidade especialidade) {
         this.especialidade = especialidade;
     }
 

@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface VeterinarioRepository extends JpaRepository<Veterinario, Long> {
 
     // aqui Metodo customizado de busca por CRMV
+    //tem uma regra de negocio importante que nao pode ter dois crvm, entao essa classe
+    //vai no banco para ver se ja tem um crvm salvo no banco
     // O Spring Data JPA lê o nome "findByCrmv" e gera a consulta SQL automaticamente nos bastidores
     Optional<Veterinario> findByCrmv(String crmv);
 }
