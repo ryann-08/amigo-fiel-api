@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-//esta  classe intercepta qualquer erro que acontece na API antes que ele chegue ao cliente e diz
-//ex: se der email duplicado responda 409... assim por diante
+
+// Esta classe intercepta qualquer erro que acontece na API antes que ele chegue ao cliente e diz
+// ex: se der email duplicado responda 409... assim por diante
 // @RestControllerAdvice: Transforma esta classe em um ouvinte global de exceções para todos os Controllers
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -56,7 +57,9 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value()); // Código 400
         body.put("error", "Bad Request");
-        body.put("messages", errors);
+        // Adicionando uma mensagem descritiva em texto para o cliente saber o que houve
+        body.put("message", "Erro de validação nos campos enviados. Verifique os dados.");
+        body.put("messages", errors); // Detalhes de qual campo falhou
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }

@@ -66,4 +66,13 @@ public class VeterinarioController {
         VeterinarioResponse response = veterinarioService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
+
+    // Excluir ou Inativar (DELETE)
+    // Recebe o ID na URL (ex: /veterinarios/4) e executa a exclusão ou inativação
+    // Excluir com mensagem de texto de resposta
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> excluir(@PathVariable Long id) {
+        veterinarioService.excluir(id);
+        return ResponseEntity.ok("Veterinário excluído com sucesso!");
+    }
 }
