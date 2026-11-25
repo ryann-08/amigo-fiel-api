@@ -23,7 +23,7 @@ public class VeterinarioService {
     private VeterinarioRepository veterinarioRepository;
 
 
-    // 1. CADASTRAR (POST)
+    //  CADASTRAR (POST)
     // @Transactional garante que se algo der errado no meio do processo,
     // o banco desfaz tudo (rollback) para não salvar dados incompletos.
     @Transactional
@@ -54,7 +54,7 @@ public class VeterinarioService {
     }
 
 
-    // 2. LISTAR COM PAGINAÇÃO (GET)
+    // LISTAR COM PAGINAÇÃO (GET)
     public Page<VeterinarioResponse> listar(VeterinarioFilter filter, Pageable pageable) {
 
         // Busca no banco apenas a "fatia" (página) solicitada, evitando sobrecarregar a memória.
@@ -64,7 +64,7 @@ public class VeterinarioService {
     }
 
 
-    // 3. BUSCAR POR ID - Retornando DTO (GET /{id})
+    // BUSCAR POR ID - Retornando DTO (GET /{id})
     // Metodo público chamado pelo Controller para entregar o JSON formatado ao cliente.
     public VeterinarioResponse buscarPorId(Long id) {
         // Reutiliza o metodo auxiliar abaixo para garantir que o registro existe

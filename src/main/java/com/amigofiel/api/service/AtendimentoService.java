@@ -8,6 +8,7 @@ import com.amigofiel.api.entity.Atendimento;
 import com.amigofiel.api.entity.Tutor;
 import com.amigofiel.api.entity.Veterinario;
 import com.amigofiel.api.enums.StatusAtendimento;
+import com.amigofiel.api.exception.BusinessRuleException;
 import com.amigofiel.api.repository.AtendimentoRepository;
 import com.amigofiel.api.repository.TutorRepository;
 import com.amigofiel.api.repository.VeterinarioRepository;
@@ -51,8 +52,9 @@ public class AtendimentoService {
                 .findByVeterinarioIdAndDataHoraAndStatus(request.veterinarioId(), request.dataHora(), StatusAtendimento.AGENDADO)
                 .isPresent();
 
+        // caso o veterinario ja tem um horario da erro 409 conflito que chama a class BusinessRuleException
         if (horarioOcupado) {
-            throw new IllegalArgumentException("O veterinario ja possui um atendimento agendado para este horario.");
+            throw new BusinessRuleException("O veterinario ja possui um atendimento agendado para este horario.");
         }
 
         //  Monta a entidade Atendimento com os dados validados
