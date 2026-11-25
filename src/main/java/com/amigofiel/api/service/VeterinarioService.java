@@ -127,12 +127,5 @@ public class VeterinarioService {
         return new VeterinarioResponse(atualizado);
     }
 
-    // Metodo para excluir o veterinário pelo ID
-    public void excluir(Long id) {
-        // Verifica se o veterinário existe antes de excluir (se não existir, já retorna 404 automaticamente pelo buscarPorId)
-        buscarPorId(id);
 
-        // Executa a exclusão no banco de dados através do Repository
-        veterinarioRepository.deleteById(id);
-    }
 }

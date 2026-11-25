@@ -73,9 +73,5 @@ public class TutorService {
         return new TutorResponse(atualizado);
     }
 
-    // DELETAR: Remove o tutor do banco se ele existir
-    public void deletar(Long id) {
-        Tutor tutor = buscarPorId(id);
-        tutorRepository.delete(tutor);
-    }
+
 }

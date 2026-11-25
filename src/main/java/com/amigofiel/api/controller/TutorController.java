@@ -54,9 +54,5 @@ public class TutorController {
         return ResponseEntity.ok(tutorAtualizado); // Retorna 200 OK
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        tutorService.deletar(id);
-        return ResponseEntity.noContent().build(); // Retorna 204 No Content
-    }
+
 }
