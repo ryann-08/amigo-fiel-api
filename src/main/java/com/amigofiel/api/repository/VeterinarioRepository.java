@@ -5,6 +5,9 @@ import com.amigofiel.api.entity.Veterinario;
 //essa importacao que faz os metodos de buscar salvar etc
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import com.amigofiel.api.enums.Especialidade;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -22,4 +25,18 @@ public interface VeterinarioRepository extends JpaRepository<Veterinario, Long> 
     Optional<Veterinario> findByCrmv(String crmv);
 
     boolean existsByCrmv(String crmv);
+
+    // Importações necessárias que você precisará garantir no topo do arquivo:
+    // import org.springframework.data.domain.Page;
+    // import org.springframework.data.domain.Pageable;
+    // import com.amigofiel.api.entity.Especialidade;
+
+    // 1. Busca por nome (contendo o texto, ignorando maiúsculas/minúsculas) com paginação
+    Page<Veterinario> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
+
+    // 2. Busca por especialidade exata com paginação
+    Page<Veterinario> findByEspecialidade(Especialidade especialidade, Pageable pageable);
+
+    // 3. Busca combinando nome E especialidade ao mesmo tempo
+    Page<Veterinario> findByNomeContainingIgnoreCaseAndEspecialidade(String nome, Especialidade especialidade, Pageable pageable);
 }

@@ -4,6 +4,7 @@ import com.amigofiel.api.dto.filter.VeterinarioFilter;
 import com.amigofiel.api.dto.request.VeterinarioRequest;
 import com.amigofiel.api.dto.response.VeterinarioResponse;
 import com.amigofiel.api.entity.Veterinario;
+import com.amigofiel.api.enums.Especialidade;
 import com.amigofiel.api.exception.BusinessRuleException;
 import com.amigofiel.api.exception.ResourceNotFoundException;
 import com.amigofiel.api.repository.VeterinarioRepository;
@@ -54,13 +55,34 @@ public class VeterinarioService {
     }
 
 
-    // LISTAR COM PAGINAÇÃO (GET)
+    // LISTAR COM FILTROS E PAGINAÇÃO (GET)
     public Page<VeterinarioResponse> listar(VeterinarioFilter filter, Pageable pageable) {
+        Page<Veterinario> pagina;
 
-        // Busca no banco apenas a "fatia" (página) solicitada, evitando sobrecarregar a memória.
-        // O map() percorre cada entidade da página e a transforma em VeterinarioResponse
-        return veterinarioRepository.findAll(pageable)
-                .map(VeterinarioResponse::new);
+        // Extrai os valores do filtro (protegendo contra null caso o filter venha vazio)
+        String nome = (filter != null) ? filter.getNome() : null;
+        Especialidade especialidade = (filter != null) ? filter.getEspecialidade() : null;
+
+        boolean temNome = (nome != null && !nome.isBlank());
+        boolean temEspecialidade = (especialidade != null);
+
+        // esse if e else faz isso aqui
+        // Se mandou nome e especialidade, busca pelos dois juntos.
+        //Se mandou só o nome, busca contendo aquele texto (ignorando maiúsculas e minúsculas).
+        // Se mandou só a especialidade, busca exata.
+        // Se não mandou nenhum filtro, ele traz a listagem completa (findAll).
+        if (temNome && temEspecialidade) {
+            pagina = veterinarioRepository.findByNomeContainingIgnoreCaseAndEspecialidade(nome, especialidade, pageable);
+        } else if (temNome) {
+            pagina = veterinarioRepository.findByNomeContainingIgnoreCase(nome, pageable);
+        } else if (temEspecialidade) {
+            pagina = veterinarioRepository.findByEspecialidade(especialidade, pageable);
+        } else {
+            pagina = veterinarioRepository.findAll(pageable);
+        }
+
+        // Converte a página de Entidades para DTO de resposta
+        return pagina.map(VeterinarioResponse::new);
     }
 
 
