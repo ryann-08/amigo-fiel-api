@@ -30,6 +30,10 @@ public class TutorRequest {
     @Size(min = 2, max = 80, message = "A cidade deve ter entre 2 e 80 caracteres")
     private String cidade;
 
+    // Opcional: usado só no PUT para inativar ou reativar o tutor.
+    // Sem validação de propósito, porque no cadastro (POST) o tutor sempre nasce ativo.
+    private Boolean ativo;
+
     // =========================================================================
     // GETTERS E SETTERS
     // O Spring (via biblioteca Jackson) usa os Setters para preencher este objeto
@@ -47,4 +51,7 @@ public class TutorRequest {
 
     public String getCidade() { return cidade; }
     public void setCidade(String cidade) { this.cidade = cidade; }
+
+    public Boolean getAtivo() { return ativo; }
+    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
 }

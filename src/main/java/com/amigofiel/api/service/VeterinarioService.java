@@ -24,14 +24,14 @@ public class VeterinarioService {
     private VeterinarioRepository veterinarioRepository;
 
 
-    //  CADASTRAR (POST)
+    // CADASTRAR (POST)
     // @Transactional garante que se algo der errado no meio do processo,
     // o banco desfaz tudo (rollback) para não salvar dados incompletos.
     @Transactional
     public VeterinarioResponse criar(VeterinarioRequest request) {
 
         // REGRA DE NEGÓCIO: Verifica se já existe um veterinário cadastrado com este CRMV.
-        // Se retornar true, bloqueia a operação e dispara uma exceção de regra (Erro 400/409).
+        // Se retornar true, bloqueia a operação e dispara uma exceção de regra (Erro 409).
         if (veterinarioRepository.existsByCrmv(request.getCrmv())) {
             throw new BusinessRuleException("Já existe um veterinário cadastrado com este CRMV.");
         }
@@ -43,11 +43,11 @@ public class VeterinarioService {
         veterinario.setCrmv(request.getCrmv());
         veterinario.setEspecialidade(request.getEspecialidade());
 
-        // Regra padrão do negócio: todo veterinario recem cadastrado nasce ativo no sistema
+        // Regra padrão do negócio: todo veterinário recém cadastrado nasce ativo no sistema
         veterinario.setAtivo(true);
 
         // Manda o repositório salvar o objeto no banco PostgreSQL.
-        // O metodo save() devolve a entidade já com o ID gerado pelo banco
+        // O método save() devolve a entidade já com o ID gerado pelo banco
         Veterinario salvo = veterinarioRepository.save(veterinario);
 
         // Converte a entidade salva em um DTO de resposta (Response) para devolver ao Controller.
@@ -66,11 +66,11 @@ public class VeterinarioService {
         boolean temNome = (nome != null && !nome.isBlank());
         boolean temEspecialidade = (especialidade != null);
 
-        // esse if e else faz isso aqui
-        // Se mandou nome e especialidade, busca pelos dois juntos.
-        //Se mandou só o nome, busca contendo aquele texto (ignorando maiúsculas e minúsculas).
-        // Se mandou só a especialidade, busca exata.
-        // Se não mandou nenhum filtro, ele traz a listagem completa (findAll).
+        // Escolhe a busca de acordo com os filtros informados:
+        // - nome e especialidade: busca pelos dois juntos.
+        // - só nome: busca contendo o texto (ignorando maiúsculas e minúsculas).
+        // - só especialidade: busca exata.
+        // - nenhum filtro: traz a listagem completa (findAll).
         if (temNome && temEspecialidade) {
             pagina = veterinarioRepository.findByNomeContainingIgnoreCaseAndEspecialidade(nome, especialidade, pageable);
         } else if (temNome) {
@@ -87,9 +87,9 @@ public class VeterinarioService {
 
 
     // BUSCAR POR ID - Retornando DTO (GET /{id})
-    // Metodo público chamado pelo Controller para entregar o JSON formatado ao cliente.
+    // Método público chamado pelo Controller para entregar o JSON formatado ao cliente.
     public VeterinarioResponse buscarPorId(Long id) {
-        // Reutiliza o metodo auxiliar abaixo para garantir que o registro existe
+        // Reutiliza o método auxiliar abaixo para garantir que o registro existe
         Veterinario veterinario = buscarEntidadePorId(id);
 
         // Converte a entidade encontrada em Response e a devolve
@@ -97,7 +97,7 @@ public class VeterinarioService {
     }
 
 
-    // METODO AUXILIAR INTERNO - Busca a Entidade Pura
+    // MÉTODO AUXILIAR INTERNO - Busca a Entidade Pura
     // Usado internamente pelo Service (em atualizações ou validações).
     // O findById retorna um Optional. Se achar, entrega a entidade; se não,
     // dispara a exceção ResourceNotFoundException que resulta em um Erro 404
@@ -114,10 +114,24 @@ public class VeterinarioService {
         // Primeiro, garante que o veterinário realmente existe no banco (lança 404 se não achar).
         Veterinario veterinario = buscarEntidadePorId(id);
 
+        // REGRA DE NEGÓCIO: o CRMV não pode repetir (Erro 409).
+        // Só conferimos no banco se o CRMV enviado é diferente do atual; se fosse o mesmo,
+        // o próprio veterinário seria acusado de duplicidade.
+        if (!veterinario.getCrmv().equals(request.getCrmv())
+                && veterinarioRepository.existsByCrmv(request.getCrmv())) {
+            throw new BusinessRuleException("Já existe um veterinário cadastrado com este CRMV.");
+        }
+
         // Atualiza os dados permitidos com as novas informações enviadas no request.
         veterinario.setNome(request.getNome());
         veterinario.setCrmv(request.getCrmv());
         veterinario.setEspecialidade(request.getEspecialidade());
+
+        // O campo ativo é opcional no JSON: se não vier, mantém o valor que já estava no banco.
+        // É por aqui que se inativa ou reativa um veterinário (ele nunca é apagado).
+        if (request.getAtivo() != null) {
+            veterinario.setAtivo(request.getAtivo());
+        }
 
         // Como o objeto já possui um id preenchido, o JPA entende que deve atualizar
         // o registro existente (UPDATE) em vez de criar um novo.
@@ -126,6 +140,4 @@ public class VeterinarioService {
         // Retorna o DTO com os dados atualizados para o Controller.
         return new VeterinarioResponse(atualizado);
     }
-
-
 }

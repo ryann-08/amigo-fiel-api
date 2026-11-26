@@ -7,9 +7,10 @@ import com.amigofiel.api.exception.BusinessRuleException;
 import com.amigofiel.api.exception.ResourceNotFoundException;
 import com.amigofiel.api.repository.TutorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +22,8 @@ public class TutorService {
     private TutorRepository tutorRepository;
 
     // CADASTRAR: Recebe o Request, valida o e-mail, salva e retorna o Response
+    // @Transactional: se algo falhar no meio, o banco desfaz tudo (rollback)
+    @Transactional
     public TutorResponse cadastrar(TutorRequest request) {
         // Regra de negócio: Verifica se já existe um tutor com este e-mail (Erro 409)
         if (tutorRepository.existsByEmail(request.getEmail())) {
@@ -42,7 +45,7 @@ public class TutorService {
         return new TutorResponse(salvo);
     }
 
-    // LISTAR COM FILTROS E PAGINAÇÃO: Busca paginada usando o repositório customizado[cite: 1]
+    // LISTAR COM FILTROS E PAGINAÇÃO: busca paginada usando a consulta personalizada do repositório
     public Page<TutorResponse> listar(String nome, String cidade, Pageable pageable) {
         return tutorRepository.filtrarTutores(nome, cidade, pageable)
                 .map(TutorResponse::new); // Converte cada Tutor da página em TutorResponse
@@ -54,24 +57,37 @@ public class TutorService {
         return new TutorResponse(tutor);
     }
 
-    // METODO AUXILIAR INTERNO: Busca a entidade pura (usado para atualizar e deletar)
+    // MÉTODO AUXILIAR INTERNO: Busca a entidade pura (usado na atualização)
     public Tutor buscarPorId(Long id) {
         return tutorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tutor não encontrado com o ID: " + id));
     }
 
-    // ATUALIZAR: Altera os dados permitidos e retorna o Response atualizado
+    // ATUALIZAR (PUT /{id}): altera os dados permitidos e retorna o Response atualizado
+    @Transactional
     public TutorResponse atualizar(Long id, TutorRequest request) {
         Tutor tutor = buscarPorId(id); // Garante que o tutor existe (senão lança 404)
+
+        // Regra de negócio: o e-mail não pode repetir (Erro 409).
+        // Só conferimos no banco se o e-mail enviado é diferente do atual; se fosse o mesmo,
+        // o próprio tutor seria acusado de duplicidade.
+        if (!tutor.getEmail().equals(request.getEmail())
+                && tutorRepository.existsByEmail(request.getEmail())) {
+            throw new BusinessRuleException("Já existe um tutor cadastrado com este e-mail.");
+        }
 
         tutor.setNome(request.getNome());
         tutor.setEmail(request.getEmail());
         tutor.setTelefone(request.getTelefone());
         tutor.setCidade(request.getCidade());
 
+        // O campo ativo é opcional no JSON: se não vier, mantém o valor que já estava no banco.
+        // É por aqui que se inativa ou reativa um tutor (ele nunca é apagado).
+        if (request.getAtivo() != null) {
+            tutor.setAtivo(request.getAtivo());
+        }
+
         Tutor atualizado = tutorRepository.save(tutor);
         return new TutorResponse(atualizado);
     }
-
-
 }
