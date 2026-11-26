@@ -1,58 +1,55 @@
 package com.amigofiel.api.controller;
 
+import com.amigofiel.api.dto.filter.AtendimentoFilter;
 import com.amigofiel.api.dto.request.AtendimentoRequest;
 import com.amigofiel.api.dto.request.StatusAtendimentoRequest;
 import com.amigofiel.api.dto.response.AtendimentoResponse;
 import com.amigofiel.api.service.AtendimentoService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-// Controlador REST que expoe os endpoints HTTP para gerenciar os atendimentos.
+// Endpoints HTTP dos atendimentos. A lógica fica no service; aqui só entra e sai de dados.
 @RestController
 @RequestMapping("/atendimentos")
 public class AtendimentoController {
 
     private final AtendimentoService atendimentoService;
 
-    // Injecao de dependencia do Service via construtor
     public AtendimentoController(AtendimentoService atendimentoService) {
         this.atendimentoService = atendimentoService;
     }
 
-    // Endpoint POST /atendimentos -> Cria um novo agendamento
-    // @Valid ativa as validacoes (@NotNull, @DecimalMin) definidas dentro do AtendimentoRequest
+    // POST /atendimentos -> agenda um atendimento (201)
     @PostMapping
     public ResponseEntity<AtendimentoResponse> criar(@RequestBody @Valid AtendimentoRequest request) {
-        AtendimentoResponse response = atendimentoService.criar(request);
-        // Retorna status 201 (Created) junto com os dados do atendimento criado
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(atendimentoService.criar(request));
     }
 
-    // Endpoint GET /atendimentos -> Lista todos os atendimentos cadastrados
+    // GET /atendimentos -> lista com filtros opcionais e paginação (?page=0&size=20)
+    // A ordenação padrão por id mantém a ordem estável entre as páginas.
     @GetMapping
-    public ResponseEntity<List<AtendimentoResponse>> listarTodos() {
-        List<AtendimentoResponse> lista = atendimentoService.listarTodos();
-        // Retorna status 200 (OK) com a lista no corpo da resposta
-        return ResponseEntity.ok(lista);
+    public ResponseEntity<Page<AtendimentoResponse>> listar(
+            AtendimentoFilter filter,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(atendimentoService.listar(filter, pageable));
     }
 
-    // Endpoint GET /atendimentos/{id} -> Busca os detalhes de um atendimento especifico
+    // GET /atendimentos/{id}
     @GetMapping("/{id}")
     public ResponseEntity<AtendimentoResponse> buscarPorId(@PathVariable Long id) {
-        AtendimentoResponse response = atendimentoService.buscarPorId(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(atendimentoService.buscarPorId(id));
     }
 
-    // Endpoint PATCH /atendimentos/{id}/status -> Atualiza parcialmente apenas o status do atendimento
+    // PATCH /atendimentos/{id}/status -> muda só o status
     @PatchMapping("/{id}/status")
     public ResponseEntity<AtendimentoResponse> atualizarStatus(
             @PathVariable Long id,
             @RequestBody @Valid StatusAtendimentoRequest request) {
-        AtendimentoResponse response = atendimentoService.atualizarStatus(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(atendimentoService.atualizarStatus(id, request));
     }
 }
