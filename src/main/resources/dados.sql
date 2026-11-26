@@ -4,7 +4,7 @@
 
 TRUNCATE TABLE atendimentos, veterinarios, tutores RESTART IDENTITY CASCADE;
 
-INSERT INTO tutores (nome, email, telefone, cidade, data_cadastro, ativo) VALUE
+INSERT INTO tutores (nome, email, telefone, cidade, data_cadastro, ativo) VALUES
 ('Marina Duarte', 'marina.duarte@email.com', '11987654321', 'São Paulo', '2026-03-01T10:15:00', true),
 ('Bruno Oliveira', 'bruno.oli@email.com', '19912345678', 'Campinas', '2026-03-02T11:00:00', true),
 ('Carla Mendes', 'carla.mendes@email.com', '13988887777', 'Santos', '2026-03-03T14:20:00', true),

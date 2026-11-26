@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 // Objeto de Transferencia de Dados (DTO) usado exclusivamente na rota de alteracao
 // parcial de status, garantindo que o novo status seja enviado.
-//aqui usei record ao inves de class pq ele cria uma estrutura imutavel, ninguem consegue alterar os valor do json no meio do caminho
+//aqui usei record ao inves de class pq ele cria uma estrutura imutavel
 
 public record StatusAtendimentoRequest(
 

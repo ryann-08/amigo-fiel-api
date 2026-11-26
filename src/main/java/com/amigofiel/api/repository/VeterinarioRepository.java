@@ -2,7 +2,7 @@ package com.amigofiel.api.repository;
 
 import com.amigofiel.api.entity.Veterinario;
 
-//essa importacao que faz os metodos de buscar salvar etc
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.amigofiel.api.enums.Especialidade;
