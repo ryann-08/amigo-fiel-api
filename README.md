@@ -13,7 +13,7 @@ API REST da clínica veterinária **Amigo Fiel**. Cadastra tutores, veterinário
 ## Pré-requisitos
 
 - Java 21 instalado (`java -version` deve mostrar 21)
-- PostgreSQL 17 ou superior instalado e rodando, na porta `5432`
+- PostgreSQL 15 ou superior instalado e rodando, na porta `5432`
 - Opcional: pgAdmin 4 (vem junto com o instalador do PostgreSQL)
 
 ## Como rodar
@@ -83,17 +83,9 @@ Ou pelo **pgAdmin**: botão direito no banco `amigofiel` → *Query Tool* → ab
 
 Carga de exemplo: 8 tutores em pelo menos 3 cidades, 6 veterinários (as 4 especialidades, com pelo menos 1 inativo) e 30 atendimentos espalhados por mais de 60 dias, com os 3 status e os 4 tipos. Todos os nomes são fictícios.
 
+O `dados.sql` começa com um `TRUNCATE` e **apaga os dados existentes** antes de inserir, então ele pode ser executado de novo sempre que quiser voltar à carga original. Ele não roda sozinho ao subir a aplicação, para que os dados continuem lá depois de um reinício.
+
 Para refazer a carga do zero, apague e recrie o banco (`DROP DATABASE amigofiel;` e `CREATE DATABASE amigofiel;`), suba a aplicação de novo e rode o `dados.sql`.
-
-### Rodando com Docker (opcional)
-
-O projeto inclui um `docker-compose.yml` que sobe um PostgreSQL pronto:
-
-```bash
-docker compose up -d
-```
-
-Se você já tem um PostgreSQL local usando a porta `5432`, pare um dos dois ou troque a porta, para não haver conflito. Confira no `docker-compose.yml` o usuário, a senha e o nome do banco e use os mesmos valores no `application.properties`.
 
 ## Estrutura do projeto
 
@@ -321,4 +313,4 @@ curl "http://localhost:8080/veterinarios?especialidade=CIRURGIA"
 - **`database "amigofiel" does not exist`:** crie o banco (passo 1).
 - **`relation "tutores" does not exist` ao rodar o `dados.sql`:** suba a aplicação uma vez antes, para o Hibernate criar as tabelas.
 - **Porta 8080 em uso:** feche o programa que a usa ou suba com `--server.port=8081`.
-.
+-
